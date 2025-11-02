@@ -18,7 +18,7 @@ const OUTPUT_FORMATS = [
 ];
 
 export default function Home() {
-  const [text, setText] = useState('Hola, este es un ejemplo de síntesis de voz con Azure TTS.');
+  const [text, setText] = useState('Hola, soy Boti, un asistente virtual que puede ayudarte con tus tareas diarias.');
   const [voice, setVoice] = useState('es-AR-ElenaNeural');
   const [rate, setRate] = useState(100);
   const [pitch, setPitch] = useState(100);
