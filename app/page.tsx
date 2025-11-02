@@ -112,7 +112,7 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2">
-            Azure TTS Playground
+            Azure TTS - BOTI
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
             Experimenta con el servicio de Text-to-Speech de Microsoft Azure
@@ -315,7 +315,7 @@ export default function Home() {
         </div>
 
         {/* Footer Info */}
-        <div className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
+        {/* <div className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
           <p>
             Powered by{' '}
             <a
@@ -327,7 +327,7 @@ export default function Home() {
               Azure Cognitive Services
             </a>
           </p>
-        </div>
+        </div> */}
       </div>
     </main>
   );
