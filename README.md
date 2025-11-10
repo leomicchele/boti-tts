@@ -6,6 +6,7 @@ Playground interactivo para experimentar con el servicio de Text-to-Speech de Mi
 
 - 🎙️ Síntesis de voz en español argentino
 - 🎛️ Control de parámetros de voz (velocidad, tono, volumen)
+- 🎭 Estilos emocionales (soporte limitado en voces es-AR)
 - 🔊 Reproducción de audio en tiempo real
 - 💾 Descarga del audio generado
 - 🎨 Interfaz moderna y responsive
@@ -13,8 +14,18 @@ Playground interactivo para experimentar con el servicio de Text-to-Speech de Mi
 
 ## Voces Disponibles
 
+### Voces Argentinas (sin soporte de estilos)
 - **Elena** (Femenina) - `es-AR-ElenaNeural`
 - **Tomás** (Masculina) - `es-AR-TomasNeural`
+
+### Voces Mexicanas
+- **Jorge** (Masculina) - `es-MX-JorgeNeural` - ✓ Soporta estilos: `chat`, `cheerful`
+- **Dalia** (Femenina) - `es-MX-DaliaNeural`
+- **Beatriz** (Femenina) - `es-MX-BeatrizNeural`
+- **Candela** (Femenina) - `es-MX-CandelaNeural`
+- **Carlota** (Femenina) - `es-MX-CarlotaNeural`
+- **Cecilio** (Masculina) - `es-MX-CecilioNeural`
+- **Gerardo** (Masculina) - `es-MX-GerardoNeural`
 
 ## Configuración
 
@@ -50,15 +61,21 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 ## Uso
 
 1. **Escribe el texto** que quieres convertir a voz
-2. **Selecciona la voz** (Elena o Tomás)
-3. **Ajusta los parámetros**:
+2. **Selecciona la voz**:
+   - Voces argentinas (Elena, Tomás) - sin estilos
+   - Voces mexicanas (Jorge con estilos, Dalia, Beatriz, etc.)
+3. **Elige el formato de salida** (MP3 en diferentes calidades)
+4. **Selecciona un estilo emocional** (solo si la voz lo soporta):
+   - **Jorge (México)**: Conversacional, Alegre
+   - El selector se deshabilitará automáticamente si la voz no soporta estilos
+5. **Ajusta los parámetros de voz**:
    - **Velocidad**: 50% (lento) a 200% (rápido)
    - **Tono**: 50% (grave) a 200% (agudo)
    - **Volumen**: 0% (silencio) a 100% (máximo)
-4. **Elige el formato de salida** (MP3 en diferentes calidades)
-5. Haz clic en **"Generar Audio"**
-6. El audio se reproducirá automáticamente
-7. Puedes **pausar/reproducir** o **descargar** el audio
+   - **Intensidad del estilo**: 0.01 (sutil) a 2 (intenso) - solo si hay un estilo seleccionado
+6. Haz clic en **"Generar Audio"**
+7. El audio se reproducirá automáticamente
+8. Puedes **pausar/reproducir** o **descargar** el audio
 
 ## Tecnologías
 
@@ -78,15 +95,38 @@ El proyecto utiliza la API de Azure Cognitive Services Text-to-Speech:
 
 ### Parámetros SSML
 
+**SSML básico:**
 ```xml
 <speak version='1.0' xml:lang='es-AR'>
   <voice xml:lang='es-AR' name='es-AR-ElenaNeural'>
-    <prosody rate='100%' pitch='100%' volume='100%'>
+    <prosody rate='1.0' pitch='+0%' volume='medium'>
       Tu texto aquí
     </prosody>
   </voice>
 </speak>
 ```
+
+**SSML con estilo emocional:**
+```xml
+<speak version='1.0' xml:lang='es-AR' xmlns:mstts="https://www.w3.org/2001/mstts">
+  <voice xml:lang='es-AR' name='es-AR-ElenaNeural'>
+    <mstts:express-as style='cheerful' styledegree='1.5'>
+      <prosody rate='1.0' pitch='+0%' volume='medium'>
+        Tu texto aquí
+      </prosody>
+    </mstts:express-as>
+  </voice>
+</speak>
+```
+
+### Soporte de estilos por idioma
+
+- **Voces Argentinas (es-AR)**: No soportan estilos emocionales ni roles
+- **Voces Mexicanas (es-MX)**: 
+  - **Jorge**: Soporta `chat` (conversacional) y `cheerful` (alegre)
+  - Otras voces mexicanas: Sin soporte de estilos actualmente
+- **Roles de voz**: No soportados en español. El atributo `role` solo está disponible para algunas voces chinas (zh-CN)
+- **Funcionalidad dinámica**: La interfaz detecta automáticamente qué estilos soporta cada voz y habilita/deshabilita el selector según corresponda
 
 ## Estructura del Proyecto
 

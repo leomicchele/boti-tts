@@ -3,10 +3,17 @@
 import { useState, useRef } from 'react';
 import { Play, Pause, Volume2, Settings, Download } from 'lucide-react';
 
-// Voces disponibles para español argentino
+// Voces disponibles
 const VOICES = [
-  { value: 'es-AR-ElenaNeural', label: 'Elena (Femenina)' },
-  { value: 'es-AR-TomasNeural', label: 'Tomás (Masculina)' },
+  { value: 'es-AR-ElenaNeural', label: 'Elena - Argentina (Femenina)', locale: 'es-AR', styles: [] },
+  { value: 'es-AR-TomasNeural', label: 'Tomás - Argentina (Masculina)', locale: 'es-AR', styles: [] },
+  { value: 'es-MX-JorgeNeural', label: 'Jorge - México (Masculina)', locale: 'es-MX', styles: ['chat', 'cheerful'] },
+  { value: 'es-MX-DaliaNeural', label: 'Dalia - México (Femenina)', locale: 'es-MX', styles: [] },
+  { value: 'es-MX-BeatrizNeural', label: 'Beatriz - México (Femenina)', locale: 'es-MX', styles: [] },
+  { value: 'es-MX-CandelaNeural', label: 'Candela - México (Femenina)', locale: 'es-MX', styles: [] },
+  { value: 'es-MX-CarlotaNeural', label: 'Carlota - México (Femenina)', locale: 'es-MX', styles: [] },
+  { value: 'es-MX-CecilioNeural', label: 'Cecilio - México (Masculina)', locale: 'es-MX', styles: [] },
+  { value: 'es-MX-GerardoNeural', label: 'Gerardo - México (Masculina)', locale: 'es-MX', styles: [] },
 ];
 
 // Formatos de salida disponibles
@@ -17,6 +24,22 @@ const OUTPUT_FORMATS = [
   { value: 'audio-16khz-128kbitrate-mono-mp3', label: 'MP3 16kHz 128kbps' },
 ];
 
+// Estilos emocionales disponibles
+const ALL_STYLES = [
+  { value: 'none', label: 'Sin estilo' },
+  { value: 'chat', label: 'Conversacional' },
+  { value: 'cheerful', label: 'Alegre' },
+  { value: 'sad', label: 'Triste' },
+  { value: 'angry', label: 'Enojado' },
+  { value: 'excited', label: 'Emocionado' },
+  { value: 'friendly', label: 'Amigable' },
+  { value: 'hopeful', label: 'Esperanzado' },
+  { value: 'shouting', label: 'Gritando' },
+  { value: 'whispering', label: 'Susurrando' },
+  { value: 'terrified', label: 'Aterrorizado' },
+];
+
+
 export default function Home() {
   const [text, setText] = useState('Hola, soy Boti, un asistente virtual que puede ayudarte con tus tareas diarias.');
   const [voice, setVoice] = useState('es-AR-ElenaNeural');
@@ -24,7 +47,28 @@ export default function Home() {
   const [pitch, setPitch] = useState(100);
   const [volume, setVolume] = useState(100);
   const [outputFormat, setOutputFormat] = useState('audio-16khz-32kbitrate-mono-mp3');
+  const [style, setStyle] = useState('none');
+  const [styledegree, setStyledegree] = useState('1');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Obtener la voz seleccionada y sus estilos soportados
+  const selectedVoice = VOICES.find(v => v.value === voice);
+  const supportedStyles = selectedVoice?.styles || [];
+  
+  // Filtrar estilos disponibles según la voz
+  const availableStyles = ALL_STYLES.filter(s => 
+    s.value === 'none' || supportedStyles.includes(s.value)
+  );
+
+  // Resetear estilo si la voz cambia y el estilo actual no es soportado
+  const handleVoiceChange = (newVoice: string) => {
+    setVoice(newVoice);
+    const newSelectedVoice = VOICES.find(v => v.value === newVoice);
+    const newSupportedStyles = newSelectedVoice?.styles || [];
+    if (style !== 'none' && !newSupportedStyles.includes(style)) {
+      setStyle('none');
+    }
+  };
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -49,10 +93,13 @@ export default function Home() {
         body: JSON.stringify({
           text,
           voice,
+          locale: selectedVoice?.locale || 'es-AR',
           rate,
           pitch,
           volume,
           outputFormat,
+          style,
+          styledegree,
         }),
       });
 
@@ -143,7 +190,7 @@ export default function Home() {
               </label>
               <select
                 value={voice}
-                onChange={(e) => setVoice(e.target.value)}
+                onChange={(e) => handleVoiceChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               >
                 {VOICES.map((v) => (
@@ -171,6 +218,59 @@ export default function Home() {
               </select>
             </div>
           </div>
+
+          {/* Style Selection */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Estilo emocional
+              {supportedStyles.length === 0 && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">(no soportado por esta voz)</span>
+              )}
+              {supportedStyles.length > 0 && (
+                <span className="text-xs text-green-600 dark:text-green-400 ml-2">✓ Soportado</span>
+              )}
+            </label>
+            <select
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
+              disabled={supportedStyles.length === 0}
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {availableStyles.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Style Degree (solo visible si hay un estilo seleccionado) */}
+          {style !== 'none' && (
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Intensidad del estilo
+                </label>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {styledegree}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0.01"
+                max="2"
+                step="0.01"
+                value={styledegree}
+                onChange={(e) => setStyledegree(e.target.value)}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600"
+              />
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>Sutil (0.01)</span>
+                <span>Normal (1)</span>
+                <span>Intenso (2)</span>
+              </div>
+            </div>
+          )}
 
           {/* Voice Parameters */}
           <div className="space-y-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">

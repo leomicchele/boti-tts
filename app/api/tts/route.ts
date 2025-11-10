@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { text, voice, rate, pitch, volume, outputFormat } = body;
+    const { text, voice, locale, rate, pitch, volume, outputFormat, style, styledegree } = body;
 
     // Convertir los valores a formato SSML correcto
     // Rate: convertir porcentaje a valor decimal (100% = 1.0)
@@ -29,13 +29,32 @@ export async function POST(request: NextRequest) {
     }
 
     // Construir el SSML con los parámetros
-    const ssml = `<speak version='1.0' xml:lang='es-AR'>
-      <voice xml:lang='es-AR' name='${voice}'>
+    let ssml = '';
+    
+    // Usar locale proporcionado o es-AR por defecto
+    const voiceLocale = locale || 'es-AR';
+    
+    // Si hay style, usar el namespace mstts
+    if (style && style !== 'none') {
+      ssml = `<speak version='1.0' xml:lang='${voiceLocale}' xmlns:mstts="https://www.w3.org/2001/mstts">
+      <voice xml:lang='${voiceLocale}' name='${voice}'>
+        <mstts:express-as style='${style}'${styledegree ? ` styledegree='${styledegree}'` : ''}>
+          <prosody rate='${rateValue}' pitch='${pitchValue}' volume='${volumeValue}'>
+            ${text}
+          </prosody>
+        </mstts:express-as>
+      </voice>
+    </speak>`;
+    } else {
+      // SSML sin style
+      ssml = `<speak version='1.0' xml:lang='${voiceLocale}'>
+      <voice xml:lang='${voiceLocale}' name='${voice}'>
         <prosody rate='${rateValue}' pitch='${pitchValue}' volume='${volumeValue}'>
           ${text}
         </prosody>
       </voice>
     </speak>`;
+    }
 
     const apiKey = process.env.AZURE_TTS_API_KEY;
     const region = process.env.AZURE_TTS_REGION || 'eastus';
